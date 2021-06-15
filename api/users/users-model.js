@@ -5,27 +5,15 @@ function find() {
     .select('u.user_id', 'u.username', 'r.role_name')
     .join('roles as r', 'u.role_id', '=', 'r.role_id')
   return users;
-  /**
-    You will need to join two tables.
-    Resolves to an ARRAY with all users.
-
-    [
-      {
-        "user_id": 1,
-        "username": "bob",
-        "role_name": "admin"
-      },
-      {
-        "user_id": 2,
-        "username": "sue",
-        "role_name": "instructor"
-      }
-    ]
-   */
 }
 
 function findBy(filter) {
-  /**
+  const user = db('users as u')
+    .select('u.user_id', 'u.username', 'r.role_name')
+    .join('roles as r', 'u.role_id', '=', 'r.role_id')
+    .where(filter)
+  return user;
+  /** 
     You will need to join two tables.
     Resolves to an ARRAY with all users that match the filter condition.
 
