@@ -1,6 +1,8 @@
 const { JWT_SECRET } = require("../secrets"); // use this secret!
 const Users = require('../users/users-model');
 const jwt = require('jsonwebtoken');
+const tokenBuilder = require('./token-builder');
+const bcrypt = require('bcryptjs');
 
 const restricted = (req, res, next) => {
   const token = req.headers.authorization;
@@ -9,7 +11,6 @@ const restricted = (req, res, next) => {
       if (err) {
         res.status(401).json({ message: 'Token invalid' })
       } else {
-        console.log('decoded token:', decoded);
         req.decodedJwt = decoded;
         next()
       }
@@ -35,11 +36,7 @@ const restricted = (req, res, next) => {
 }
 
 const only = role_name => (req, res, next) => { // this is a middleware builder
-  console.log(`desired: ${role_name}`);
-  console.log(`decoded: ${req.decodedJwt.role_name}`);
   if (role_name === req.decodedJwt.role_name) {
-    console.log('role_name', role_name);
-    console.log('req.decodedJwt.role_name', req.decodedJwt.role_name);
     next()
   } else {
     next({
@@ -65,9 +62,10 @@ const checkUsernameExists = async (req, res, next) => {
   try {
     const { username, password } = req.body;
     const user = await Users.findBy({ username })
-    if (user) {
+    if (user && bcrypt.compareSync(password, user.password)) {
+      const token = tokenBuilder(user)
       req.user = user;
-      console.log(req.user);
+      req.token = token;
       next()
     } else {
       next({
@@ -78,13 +76,6 @@ const checkUsernameExists = async (req, res, next) => {
   } catch (err) {
     next(err)
   }
-  /*
-    If the username in req.body does NOT exist in the database
-    status 401
-    {
-      "message": "Invalid credentials"
-    }
-  */
 }
 
 
@@ -108,24 +99,6 @@ const validateRoleName = (req, res, next) => {
   } catch (err) {
     next(err)
   }
-  /*
-    If the role_name in the body is valid, set req.role_name to be the trimmed string and proceed.
-
-    If role_name is missing from req.body, or if after trimming it is just an empty string,
-    set req.role_name to be 'student' and allow the request to proceed.
-
-    If role_name is 'admin' after trimming the string:
-    status 422
-    {
-      "message": "Role name can not be admin"
-    }
-
-    If role_name is over 32 characters after trimming the string:
-    status 422
-    {
-      "message": "Role name can not be longer than 32 chars"
-    }
-  */
 }
 
 module.exports = {
