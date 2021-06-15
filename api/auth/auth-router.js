@@ -4,6 +4,7 @@ const { JWT_SECRET } = require("../secrets"); // use this secret!
 const Users = require('../users/users-model');
 
 router.post("/register", validateRoleName, (req, res, next) => {
+  res.status(200).json(req.role_name)
   /**
     [POST] /api/auth/register { "username": "anna", "password": "1234", "role_name": "angel" }
 
