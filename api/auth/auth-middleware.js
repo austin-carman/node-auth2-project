@@ -36,7 +36,7 @@ const restricted = (req, res, next) => {
 
 const only = role_name => (req, res, next) => { // this is a middleware builder
   console.log(`desired: ${role_name}`);
-  console.log(`decoded: ${req.decodedJwt.role}`);
+  console.log(`decoded: ${req.decodedJwt.role_name}`);
   if (role_name === req.decodedJwt.role_name) {
     console.log('role_name', role_name);
     console.log('req.decodedJwt.role_name', req.decodedJwt.role_name);
@@ -63,9 +63,11 @@ const only = role_name => (req, res, next) => { // this is a middleware builder
 
 const checkUsernameExists = async (req, res, next) => {
   try {
-    const user = await Users.findBy(req.body)
+    const { username, password } = req.body;
+    const user = await Users.findBy({ username })
     if (user) {
       req.user = user;
+      console.log(req.user);
       next()
     } else {
       next({
@@ -89,8 +91,8 @@ const checkUsernameExists = async (req, res, next) => {
 const validateRoleName = (req, res, next) => {
   const { role_name } = req.body;
   try {
-    if (role_name == undefined || role_name.trim() === '') {
-      req.role_name = 'student'
+    if (!role_name || role_name.trim() === '') {
+      req.body.role_name = 'student'
       next()
     } else if (role_name.trim() === 'admin') {
       next({
@@ -100,7 +102,7 @@ const validateRoleName = (req, res, next) => {
     } else if (role_name.trim().length > 32) {
       res.status(422).json({ message: 'Role name can not be longer than 32 chars' })
     } else if (role_name.trim()) {
-      req.role_name = role_name.trim()
+      req.body.role_name = role_name.trim()
       next()
     }
   } catch (err) {
