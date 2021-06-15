@@ -1,6 +1,10 @@
 const db = require('../../data/db-config.js');
 
 function find() {
+  const users = db('users as u')
+    .select('u.user_id', 'u.username', 'r.role_name')
+    .join('roles as r', 'u.role_id', '=', 'r.role_id')
+  return users;
   /**
     You will need to join two tables.
     Resolves to an ARRAY with all users.
