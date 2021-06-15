@@ -5,7 +5,8 @@ const Users = require('../users/users-model');
 const bcrypt = require('bcryptjs');
 
 router.post("/register", validateRoleName, (req, res, next) => {
-  const { username, password, role_name } = req.body;
+  const { username, password } = req.body;
+  const { role_name } = req; 
   const hash = bcrypt.hashSync(password, 8)
 
   Users.add({ username, password: hash, role_name })
