@@ -12,6 +12,7 @@ function findBy(filter) {
     .select('u.user_id', 'u.username', 'u.password', 'r.role_name')
     .join('roles as r', 'u.role_id', '=', 'r.role_id')
     .where(filter)
+    .first()
   return user;
 }
 
@@ -20,6 +21,7 @@ function findById(user_id) {
     .select('u.user_id', 'u.username', 'r.role_name')
     .join('roles as r', 'u.role_id', '=', 'r.role_id')
     .where('u.user_id', user_id)
+    .first()
   return user;
 }
 
