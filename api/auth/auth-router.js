@@ -19,11 +19,16 @@ router.post("/register", validateRoleName, (req, res, next) => {
 
 
 router.post("/login", checkUsernameExists, (req, res, next) => {
-  Users.findBy(req.body)
-    .then(user => {
-      console.log(user);
-    }) 
-    .catch(next)
+  // this code was given... ok to comment out??
+  // Users.findBy(req.body)
+  //   .then(user => {
+  //     console.log(user);
+  //   }) 
+  //   .catch(next)
+  res.status(200).json({
+    message: `${req.user.username} is back!`,
+    token: 'unknown'
+  });
   /**
     [POST] /api/auth/login { "username": "sue", "password": "1234" }
 
