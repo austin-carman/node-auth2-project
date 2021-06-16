@@ -1,8 +1,7 @@
  const { JWT_SECRET } = require("../secrets"); // use this secret!
 const Users = require('../users/users-model');
 const jwt = require('jsonwebtoken');
-const tokenBuilder = require('./token-builder');
-const bcrypt = require('bcryptjs');
+
 
 const restricted = (req, res, next) => {
   const token = req.headers.authorization;
@@ -60,18 +59,16 @@ const only = role_name => (req, res, next) => { // this is a middleware builder
 
 const checkUsernameExists = async (req, res, next) => {
   try {
-    const { username, password } = req.body;
+    const { username } = req.body;
     const user = await Users.findBy({ username })
-    if (user && bcrypt.compareSync(password, user.password)) {
-      const token = tokenBuilder(user)
-      req.user = user;
-      req.token = token;
-      next()
-    } else {
+    if (!user) {
       next({
         status: 401,
         message: 'Invalid credentials'
       })
+    } else {
+      req.user = user
+      next()
     }
   } catch (err) {
     next(err)
